@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}View Schedule - Auto Scheduler{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="schedule-page">
+    <div class="page-header">
+        <h2>Schedule Overview</h2>
+        <p class="period-date">{{ period_description }}</p>
+    </div>
+
+    <div class="schedule-stats">
+        <div class="stat-box">
+            <h4>Total Tasks</h4>
+            <p>{{ schedule.tasks|length }}</p>
+        </div>
+        <div class="stat-box">
+            <h4>Assigned</h4>
+            <p class="success">{{ schedule.get_assigned_tasks()|length }}</p>
+        </div>
+        <div class="stat-box">
+            <h4>Unassigned</h4>
+            <p class="warning">{{ schedule.get_unassigned_tasks()|length }}</p>
+        </div>
+        <div class="stat-box">
+            <h4>Completion Rate</h4>
+            <p>{{ "%.1f"|format(schedule.get_completion_rate()) }}%</p>
+        </div>
+    </div>
+
+    {% if employee_workload %}
+    <section class="workload-section">
+        <h3>Employee Workload</h3>
+        <div class="chart-container">
+            <canvas id="workloadChart"></canvas>
+        </div>
+
+        <div class="workload-details">
+            {% for emp in employee_workload %}
+            <div class="employee-card">
+                <div class="employee-header">
+                    <h4>{{ emp.employee_name }}</h4>
+                    <span class="badge">{{ emp.position }} - Rank {{ emp.rank }}</span>
+                </div>
+                <div class="employee-stats">
+                    <div class="stat-row">
+                        <span>Hours:</span>
+                        <strong>{{ emp.assigned_hours }} / {{ emp.max_hours }}h</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Utilization:</span>
+                        <strong class="{% if emp.utilization > 90 %}warning{% elif emp.utilization > 70 %}info{% else %}success{% endif %}">
+                            {{ emp.utilization }}%
+                        </strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Tasks:</span>
+                        <strong>{{ emp.task_count }}</strong>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill {% if emp.utilization > 90 %}warning{% elif emp.utilization > 70 %}info{% else %}success{% endif %}"
+                             style="width: {{ emp.utilization }}%"></div>
+                    </div>
+                </div>
+                {% if emp.tasks %}
+                <div class="task-list">
+                    <strong>Assigned Tasks:</strong>
+                    <ul>
+                        {% for task in emp.tasks %}
+                        <li>{{ task.name }} ({{ task.duration }}h)</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if unassigned_tasks %}
+    <section class="unassigned-section">
+        <h3>Unassigned Tasks</h3>
+        <div class="alert alert-warning">
+            {{ unassigned_tasks|length }} task(s) could not be assigned. See details below.
+        </div>
+
+        {% for task_info in unassigned_tasks %}
+        <div class="unassigned-card">
+            <h4>{{ task_info.task_name }}</h4>
+            <div class="task-details">
+                <span>Duration: {{ task_info.duration }}h</span>
+                <span>Priority: {{ task_info.priority }}/10</span>
+                <span>Min Rank: {{ task_info.min_rank }}</span>
+            </div>
+            <div class="required-skills">
+                <strong>Required Skills:</strong>
+                {% for skill in task_info.required_training %}
+                <span class="skill-tag">{{ skill }}</span>
+                {% endfor %}
+            </div>
+            <div class="reasons">
+                <strong>Reasons not assigned:</strong>
+                <ul>
+                    {% for reason in task_info.reasons %}
+                    <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <div class="action-buttons">
+        <form action="{{ url_for('generate_schedule') }}" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-success">Regenerate Schedule</button>
+        </form>
+        <a href="{{ url_for('export_page') }}" class="btn btn-info">Export Schedule</a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/schedule_viz.js') }}"></script>
+<script>
+    const workloadData = {{ employee_workload|tojson }};
+    if (workloadData && workloadData.length > 0) {
+        createWorkloadChart(workloadData);
+    }
+</script>
+{% endblock %}

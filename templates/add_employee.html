@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Add Employee - Auto Scheduler{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Add New Employee</h2>
+
+    <form action="{{ url_for('add_employee') }}" method="POST" class="data-form">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="position">Position *</label>
+            <input type="text" id="position" name="position" required placeholder="e.g., Software Engineer, Designer">
+        </div>
+
+        <div class="form-group">
+            <label for="rank">Rank (1-10) *</label>
+            <input type="range" id="rank" name="rank" min="1" max="10" value="5" required>
+            <span id="rank-value" class="range-value">5</span>
+            <p class="form-help">1 = Junior, 10 = Senior</p>
+        </div>
+
+        <div class="form-group">
+            <label for="max_hours">Max Hours (2-week period) *</label>
+            <input type="number" id="max_hours" name="max_hours" min="1" max="336" value="80" step="0.5" required>
+            <p class="form-help">Maximum: 336 hours (24h × 14 days)</p>
+        </div>
+
+        <div class="form-group">
+            <label for="training">Training/Skills *</label>
+            <textarea id="training" name="training" rows="3" required placeholder="Enter skills separated by commas (e.g., Python, JavaScript, Leadership)"></textarea>
+            <p class="form-help">Comma-separated list of skills and certifications</p>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-success">Add Employee</button>
+            <a href="{{ url_for('manage_employees') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const rankSlider = document.getElementById('rank');
+    const rankValue = document.getElementById('rank-value');
+    rankSlider.addEventListener('input', function() {
+        rankValue.textContent = this.value;
+    });
+</script>
+{% endblock %}
