@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Employees - Auto Scheduler{% endblock %}
+
+{% block content %}
+<div class="management-page">
+    <div class="page-header">
+        <h2>Manage Employees</h2>
+        <a href="{{ url_for('add_employee') }}" class="btn btn-primary">Add Employee</a>
+    </div>
+
+    {% if employees %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Rank</th>
+                    <th>Training/Skills</th>
+                    <th>Hours</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.id }}</td>
+                    <td><strong>{{ emp.name }}</strong></td>
+                    <td>{{ emp.position }}</td>
+                    <td>
+                        <span class="badge badge-rank">{{ emp.rank }}/10</span>
+                    </td>
+                    <td>
+                        <div class="skills-list">
+                            {% for skill in emp.training %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="hours-info">
+                            <span class="hours-used">{{ emp.current_hours }}</span> /
+                            <span class="hours-max">{{ emp.max_hours }}</span>h
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ (emp.current_hours / emp.max_hours * 100) if emp.max_hours > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('delete_employee', emp_id=emp.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete {{ emp.name }}?');">
+                            <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No employees added yet.</p>
+        <a href="{{ url_for('add_employee') }}" class="btn btn-primary">Add Your First Employee</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Auto Scheduler{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Dashboard</h2>
+
+    <div class="period-info">
+        <h3>Current Scheduling Period</h3>
+        <p class="period-date">{{ period_description }}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Employees</h3>
+            <p class="stat-number">{{ employee_count }}</p>
+            <a href="{{ url_for('add_employee') }}" class="btn btn-primary">Add Employee</a>
+        </div>
+
+        <div class="stat-card">
+            <h3>Tasks</h3>
+            <p class="stat-number">{{ task_count }}</p>
+            <a href="{{ url_for('add_task') }}" class="btn btn-primary">Add Task</a>
+        </div>
+
+        <div class="stat-card">
+            <h3>Assigned Tasks</h3>
+            <p class="stat-number">{{ stats.assigned_tasks }} / {{ stats.total_tasks }}</p>
+            <p class="stat-detail">{{ stats.completion_rate }}% complete</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Total Hours</h3>
+            <p class="stat-number">{{ stats.total_hours_scheduled }}</p>
+            <p class="stat-detail">Avg: {{ stats.average_hours_per_employee }}h/employee</p>
+        </div>
+    </div>
+
+    <div class="action-section">
+        <h3>Quick Actions</h3>
+        <div class="button-group">
+            <form action="{{ url_for('generate_schedule') }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-success btn-large">Generate Schedule</button>
+            </form>
+            <a href="{{ url_for('view_schedule') }}" class="btn btn-info btn-large">View Schedule</a>
+            <form action="{{ url_for('reset_schedule') }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to reset all assignments?');">
+                <button type="submit" class="btn btn-warning">Reset Schedule</button>
+            </form>
+            <form action="{{ url_for('clear_data') }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to clear ALL data? This cannot be undone!');">
+                <button type="submit" class="btn btn-danger">Clear All Data</button>
+            </form>
+        </div>
+    </div>
+
+    {% if stats.total_tasks > 0 %}
+    <div class="info-section">
+        <h3>Schedule Status</h3>
+        {% if stats.assigned_tasks == stats.total_tasks %}
+        <div class="alert alert-success">
+            All tasks have been assigned!
+        </div>
+        {% elif stats.assigned_tasks > 0 %}
+        <div class="alert alert-warning">
+            {{ stats.unassigned_tasks }} task(s) still unassigned. Click "Generate Schedule" to assign them.
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No tasks have been assigned yet. Click "Generate Schedule" to create assignments.
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Add Task - Auto Scheduler{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h2>Add New Task</h2>
+
+    <form action="{{ url_for('add_task') }}" method="POST" class="data-form">
+        <div class="form-group">
+            <label for="name">Task Name *</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., Develop login feature">
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration (hours) *</label>
+            <input type="number" id="duration" name="duration" min="0.5" max="336" value="8" step="0.5" required>
+            <p class="form-help">How many hours this task will take</p>
+        </div>
+
+        <div class="form-group">
+            <label for="priority">Priority (1-10) *</label>
+            <input type="range" id="priority" name="priority" min="1" max="10" value="5" required>
+            <span id="priority-value" class="range-value">5</span>
+            <p class="form-help">1 = Low priority, 10 = High priority</p>
+        </div>
+
+        <div class="form-group">
+            <label for="min_rank">Minimum Rank Required (1-10) *</label>
+            <input type="range" id="min_rank" name="min_rank" min="1" max="10" value="1" required>
+            <span id="min-rank-value" class="range-value">1</span>
+            <p class="form-help">Minimum employee rank needed for this task</p>
+        </div>
+
+        <div class="form-group">
+            <label for="required_training">Required Training/Skills *</label>
+            <textarea id="required_training" name="required_training" rows="3" required placeholder="Enter required skills separated by commas (e.g., Python, Database, Testing)"></textarea>
+            <p class="form-help">Comma-separated list of required skills</p>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-success">Add Task</button>
+            <a href="{{ url_for('manage_tasks') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const prioritySlider = document.getElementById('priority');
+    const priorityValue = document.getElementById('priority-value');
+    prioritySlider.addEventListener('input', function() {
+        priorityValue.textContent = this.value;
+    });
+
+    const minRankSlider = document.getElementById('min_rank');
+    const minRankValue = document.getElementById('min-rank-value');
+    minRankSlider.addEventListener('input', function() {
+        minRankValue.textContent = this.value;
+    });
+</script>
+{% endblock %}

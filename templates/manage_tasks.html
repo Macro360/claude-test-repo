@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Tasks - Auto Scheduler{% endblock %}
+
+{% block content %}
+<div class="management-page">
+    <div class="page-header">
+        <h2>Manage Tasks</h2>
+        <a href="{{ url_for('add_task') }}" class="btn btn-primary">Add Task</a>
+    </div>
+
+    {% if tasks %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Task Name</th>
+                    <th>Duration</th>
+                    <th>Priority</th>
+                    <th>Min Rank</th>
+                    <th>Required Skills</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr class="{{ 'assigned' if task.is_assigned() else 'unassigned' }}">
+                    <td>{{ task.id }}</td>
+                    <td><strong>{{ task.name }}</strong></td>
+                    <td>{{ task.duration }}h</td>
+                    <td>
+                        <span class="badge badge-priority-{{ task.priority }}">{{ task.priority }}/10</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-rank">{{ task.min_rank }}</span>
+                    </td>
+                    <td>
+                        <div class="skills-list">
+                            {% for skill in task.required_training %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if task.assigned_employee %}
+                        <span class="assigned-employee">{{ task.assigned_employee.name }}</span>
+                        {% else %}
+                        <span class="unassigned-label">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete {{ task.name }}?');">
+                            <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No tasks added yet.</p>
+        <a href="{{ url_for('add_task') }}" class="btn btn-primary">Add Your First Task</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
