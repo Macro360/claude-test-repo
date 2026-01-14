@@ -43,3 +43,11 @@ Thumbs.db
 # Environment variables
 .env
 .flaskenv
+
+# Generated output files
+demo_*.csv
+demo_*.json
+demo_*.txt
+*_export.csv
+*_export.json
+schedule_report.txt
